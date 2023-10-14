@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,8 +33,8 @@ async function run() {
 
         // Read operation [ GET ]
         app.get('/users', async (req, res) => {
-            const cursor = userCollection.find();
-            const result = await cursor.toArray();
+            const cursor = userCollection.find(); // must user cursor
+            const result = await cursor.toArray(); // if data with more that one document (objects or array of objects)
             res.send(result);
         })
 
@@ -47,6 +47,15 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
 
+        })
+
+        // Delete operation [ DELETE ]
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log('please delete from db', id);
+            const query = { _id: new ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
         })
 
 
