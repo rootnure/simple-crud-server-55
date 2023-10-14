@@ -42,6 +42,7 @@ async function run() {
         app.get('/users/:id', async (req, res) => {
             const id = req.params.id;
             console.log('get data for', id);
+            // must use ObjectId and 'new' keyword to set query
             const query = { _id: new ObjectId(id) };
             const user = await userCollection.findOne(query);
             res.send(user);
@@ -55,13 +56,32 @@ async function run() {
             // Insert the defined document into the "users" collection
             const result = await userCollection.insertOne(user);
             res.send(result);
+        })
 
+        // Update data [ PUT ] ==> If data exists, will update; it doesn't exists, will add
+        app.put('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const user = req.body;
+            console.log(id, user);
+
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedUser = {
+                $set: {
+                    name: user.name,
+                    email: user.email
+                }
+            }
+
+            const result = await userCollection.updateOne(filter, updatedUser, options);
+            res.send(result);
         })
 
         // Delete operation [ DELETE ]
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
             console.log('please delete from db', id);
+            // must use ObjectId and 'new' keyword to set query
             const query = { _id: new ObjectId(id) };
             const result = await userCollection.deleteOne(query);
             res.send(result);
