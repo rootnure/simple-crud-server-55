@@ -31,11 +31,20 @@ async function run() {
         // Connect to the "usersDB" database and access its "users" collection
         const userCollection = client.db('usersDB').collection('users');
 
-        // Read operation [ GET ]
+        // Read Many user operation [ GET ]
         app.get('/users', async (req, res) => {
             const cursor = userCollection.find(); // must user cursor
             const result = await cursor.toArray(); // if data with more that one document (objects or array of objects)
             res.send(result);
+        })
+
+        // Read Single user operation [ GET ]
+        app.get('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log('get data for', id);
+            const query = { _id: new ObjectId(id) };
+            const user = await userCollection.findOne(query);
+            res.send(user);
         })
 
         // Create operation [ POST ]
